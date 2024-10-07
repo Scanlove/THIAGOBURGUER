@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas - Thiago Burger</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="js/ventas.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Registro de Ventas</h1>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="inventario.html">Inventario</a>
+            <a href="compras.html">Compras</a>
+            <a href="reportes.html">Reportes</a>
+        </nav>
+    </header>
+    <section>
+        <select id="saleProduct"></select>
+        <input type="number" id="saleQuantity" placeholder="Cantidad Vendida">
+        <button onclick="recordSale()">Registrar Venta</button>
+        <div id="salesHistory"></div>
+    </section>
+</body>
+</html>
