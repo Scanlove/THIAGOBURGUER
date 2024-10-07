@@ -48,102 +48,138 @@ function realizarVenta() {
         return;
     }
 
+    const comidas = inventory.filter(item => item.category === 'Comida');
+    const extras = inventory.filter(item => item.category === 'Extras y Porciones');
+    const gaseosas = inventory.filter(item => item.category === 'Gaseosas');
+
     document.getElementById('ventasContent').innerHTML = `
         <h3>Realizar Venta</h3>
-        <select id="ventaProducto">
-            ${inventory.map((product, index) => `<option value="${index}">${product.name}</option>`).join('')}
+        <div class="category">
+            <h4>Comida</h4>
+            <ul>
+                ${comidas.map((item, index) => `<li>${item.name} - $${item.price.toFixed(2)} 
+                    <button onclick="agregarAlCarrito(${index}, 'Comida')">Agregar</button></li>`).join('')}
+            </ul>
+        </div>
+        <div class="category">
+            <h4>Extras y Porciones</h4>
+            <ul>
+                ${extras.map((item, index) => `<li>${item.name} - $${item.price.toFixed(2)} 
+                    <button onclick="agregarAlCarrito(${index}, 'Extras y Porciones')">Agregar</button></li>`).join('')}
+            </ul>
+        </div>
+        <div class="category">
+            <h4>Gaseosas</h4>
+            <ul>
+                ${gaseosas.map((item, index) => `<li>${item.name} - $${item.price.toFixed(2)} 
+                    <button onclick="agregarAlCarrito(${index}, 'Gaseosas')">Agregar</button></li>`).join('')}
+            </ul>
+        </div>
+        <h3>Resumen de Venta</h3>
+        <div id="carrito"></div>
+        <p>Total a Cobrar: $<span id="totalVenta">0.00</span></p>
+        <input type="number" id="montoPago" placeholder="Monto Pagado">
+        <p>Cambio: $<span id="cambioVenta">0.00</span></p>
+        <select id="metodoPago">
+            <option value="Efectivo">Efectivo</option>
+            <option value="QR">QR</option>
         </select>
-        <input type="number" id="ventaCantidad" placeholder="Cantidad a vender">
-        <button onclick="venderProducto()">Vender</button>
+        <button onclick="calcularCambio()">Calcular Cambio</button>
+        <button onclick="procesarVenta()">Procesar Venta</button>
+        <div class="menu">
+            <button onclick="window.location.href='index.html'">Volver</button>
+        </div>
     `;
 }
 
-function venderProducto() {
-    const productoIndex = document.getElementById('ventaProducto').value;
-    const cantidad = parseInt(document.getElementById('ventaCantidad').value);
-    const producto = inventory[productoIndex];
+let carrito = [];
+let totalVenta = 0;
 
-    if (cantidad > 0 && cantidad <= producto.quantity) {
-        const totalVenta = cantidad * producto.price;
-        producto.quantity -= cantidad;
-        caja.totalVentas += totalVenta;
-        caja.ventas.push({ name: producto.name, quantity: cantidad, total: totalVenta, date: new Date().toLocaleDateString() });
-        sales.push({ name: producto.name, quantity: cantidad, total: totalVenta, date: new Date().toLocaleDateString() });
-        saveCaja();
-        alert(`Venta realizada: ${cantidad} x ${producto.name} por $${totalVenta.toFixed(2)}`);
-        document.getElementById('ventasContent').innerHTML = '';
-    } else {
-        alert('Cantidad inválida o no hay suficiente stock.');
-    }
-}
+// Función para agregar productos al carrito
+function agregarAlCarrito(index, categoria) {
+    let producto;
 
-// Función para cerrar la caja
-function cierreCaja() {
-    if (!cajaAbierta) {
-        alert('La caja no está abierta.');
-        return;
+    if (categoria === 'Comida') {
+        producto = inventory.filter(item => item.category === 'Comida')[index];
+    } else if (categoria === 'Extras y Porciones') {
+        producto = inventory.filter(item => item.category === 'Extras y Porciones')[index];
+    } else if (categoria === 'Gaseosas') {
+        producto = inventory.filter(item => item.category === 'Gaseosas')[index];
     }
 
-    const totalVentas = caja.ventas.reduce((total, venta) => total + venta.total, 0);
-    const totalCaja = caja.montoInicial + totalVentas;
-
-    document.getElementById('ventasContent').innerHTML = `
-        <h3>Cierre de Caja</h3>
-        <p>Total de Ventas: $${totalVentas.toFixed(2)}</p>
-        <p>Monto Inicial: $${caja.montoInicial.toFixed(2)}</p>
-        <p>Total en Caja: $${totalCaja.toFixed(2)}</p>
-        <button onclick="confirmarCierre()">Confirmar Cierre</button>
-    `;
+    carrito.push({ name: producto.name, price: producto.price, quantity: 1 });
+    totalVenta += producto.price;
+    actualizarCarrito();
 }
 
-function confirmarCierre() {
-    cajaAbierta = false;
-    saveCaja();
-    alert('Caja cerrada con éxito.');
-    document.getElementById('ventasContent').innerHTML = '';
-}
-
-// Función para reimprimir el último cierre de caja
-function reimprimirCierre() {
-    const totalVentas = caja.ventas.reduce((total, venta) => total + venta.total, 0);
-    const totalCaja = caja.montoInicial + totalVentas;
-
-    document.getElementById('ventasContent').innerHTML = `
-        <h3>Último Cierre de Caja</h3>
-        <p>Total de Ventas: $${totalVentas.toFixed(2)}</p>
-        <p>Monto Inicial: $${caja.montoInicial.toFixed(2)}</p>
-        <p>Total en Caja: $${totalCaja.toFixed(2)}</p>
-    `;
-}
-
-// Función para mostrar el cierre por producto
-function cierrePorProducto() {
-    const ventasPorProducto = sales.reduce((acc, sale) => {
-        acc[sale.name] = (acc[sale.name] || 0) + sale.quantity;
-        return acc;
-    }, {});
-
-    const content = `
-        <h3>Cierre por Producto</h3>
+// Función para actualizar el carrito en la vista
+function actualizarCarrito() {
+    const carritoDiv = document.getElementById('carrito');
+    carritoDiv.innerHTML = `
         <ul>
-            ${Object.entries(ventasPorProducto).map(([name, quantity]) => `
-                <li>${name}: ${quantity} unidades vendidas</li>
+            ${carrito.map((item, index) => `
+                <li>${item.name} - $${item.price.toFixed(2)} 
+                <button onclick="eliminarDelCarrito(${index})">Eliminar</button></li>
             `).join('')}
         </ul>
     `;
-
-    document.getElementById('ventasContent').innerHTML = content;
+    document.getElementById('totalVenta').textContent = totalVenta.toFixed(2);
 }
 
-// Función para realizar el arqueo de caja
-function arqueoCaja() {
-    const totalVentas = caja.ventas.reduce((total, venta) => total + venta.total, 0);
-    const totalCaja = caja.montoInicial + totalVentas;
+// Función para eliminar productos del carrito
+function eliminarDelCarrito(index) {
+    totalVenta -= carrito[index].price;
+    carrito.splice(index, 1);
+    actualizarCarrito();
+}
 
-    document.getElementById('ventasContent').innerHTML = `
-        <h3>Arqueo de Caja</h3>
-        <p>Total de Ventas: $${totalVentas.toFixed(2)}</p>
-        <p>Monto Inicial: $${caja.montoInicial.toFixed(2)}</p>
-        <p>Total en Caja: $${totalCaja.toFixed(2)}</p>
-    `;
+// Función para calcular el cambio
+function calcularCambio() {
+    const montoPago = parseFloat(document.getElementById('montoPago').value);
+    const cambio = montoPago - totalVenta;
+
+    if (cambio >= 0) {
+        document.getElementById('cambioVenta').textContent = cambio.toFixed(2);
+    } else {
+        alert('El monto pagado es insuficiente.');
+    }
+}
+
+// Función para procesar la venta y actualizar el inventario
+function procesarVenta() {
+    const metodoPago = document.getElementById('metodoPago').value;
+    const montoPago = parseFloat(document.getElementById('montoPago').value);
+    const cambio = parseFloat(document.getElementById('cambioVenta').textContent);
+
+    if (montoPago >= totalVenta && cambio >= 0) {
+        carrito.forEach(item => {
+            const product = inventory.find(p => p.name === item.name);
+            if (product) {
+                product.quantity -= item.quantity;
+            }
+        });
+
+        caja.totalVentas += totalVenta;
+        caja.ventas.push({
+            items: [...carrito],
+            total: totalVenta,
+            paymentMethod: metodoPago,
+            date: new Date().toLocaleDateString(),
+        });
+
+        sales.push(...carrito.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            total: item.price * item.quantity,
+            date: new Date().toLocaleDateString(),
+        })));
+
+        saveCaja();
+        alert('Venta procesada con éxito.');
+        document.getElementById('ventasContent').innerHTML = '';
+        carrito = [];
+        totalVenta = 0;
+    } else {
+        alert('Por favor, verifica el monto pagado y el cambio.');
+    }
 }
