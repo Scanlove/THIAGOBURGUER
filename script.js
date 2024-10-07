@@ -1,24 +1,12 @@
-const users = [
-    { username: 'caja1', password: 'caja1', role: 'cajero' },
-    { username: 'admin', password: 'adminadmin2023', role: 'Administrador' },
-    { username: 'inventario', password: 'adminadmin2023', role: 'inventario' },
-];
-
 let inventory = [];
+let sales = [];
+let purchases = [];
 
-function login() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const user = users.find(u => u.username === username && u.password === password);
-    
-    if (user) {
-        alert(`Bienvenido, ${user.role}`);
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('inventory').style.display = 'block';
-        renderInventory();
-    } else {
-        alert('Usuario o contraseña incorrectos');
-    }
+function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById(sectionId).classList.add('active');
 }
 
 function addProduct() {
@@ -26,15 +14,9 @@ function addProduct() {
     const quantity = parseInt(document.getElementById('productQuantity').value);
     const price = parseFloat(document.getElementById('productPrice').value);
     
-    if (name && quantity > 0 && price > 0) {
-        inventory.push({ name, quantity, price });
-        renderInventory();
-        document.getElementById('productName').value = '';
-        document.getElementById('productQuantity').value = '';
-        document.getElementById('productPrice').value = '';
-    } else {
-        alert('Por favor, completa todos los campos correctamente.');
-    }
+    inventory.push({ name, quantity, price });
+    renderInventory();
+    updateSaleOptions();
 }
 
 function renderInventory() {
@@ -55,25 +37,25 @@ function renderInventory() {
     });
 }
 
-function deleteProduct(index) {
-    inventory.splice(index, 1);
+function recordSale() {
+    const productIndex = document.getElementById('saleProduct').value;
+    const quantitySold = parseInt(document.getElementById('saleQuantity').value);
+    const product = inventory[productIndex];
+    
+    if (product && quantitySold > 0 && quantitySold <= product.quantity) {
+        product.quantity -= quantitySold;
+        const totalSale = quantitySold * product.price;
+        sales.push({ name: product.name, quantity: quantitySold, total: totalSale });
+        renderInventory();
+    }
+}
+
+function recordPurchase() {
+    const name = document.getElementById('purchaseProduct').value;
+    const quantity = parseInt(document.getElementById('purchaseQuantity').value);
+    const price = parseFloat(document.getElementById('purchasePrice').value);
+    
+    purchases.push({ name, quantity, price });
+    inventory.push({ name, quantity, price });
     renderInventory();
-}
-
-function editProduct(index) {
-    const product = inventory[index];
-    document.getElementById('productName').value = product.name;
-    document.getElementById('productQuantity').value = product.quantity;
-    document.getElementById('productPrice').value = product.price;
-    inventory.splice(index, 1);
-}
-
-function generateReport() {
-    const totalValue = inventory.reduce((sum, product) => sum + product.quantity * product.price, 0);
-    const totalProducts = inventory.length;
-    const reportContent = document.getElementById('reportContent');
-    reportContent.innerHTML = `
-        <p>Total de productos: ${totalProducts}</p>
-        <p>Valor total del inventario: $${totalValue.toFixed(2)}</p>
-    `;
 }
