@@ -5,23 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ventas - Thiago Burger</title>
     <link rel="stylesheet" href="style.css">
-    <script src="js/ventas.js" defer></script>
+    <script src="ventas.js" defer></script>
 </head>
 <body>
     <header>
-        <h1>Registro de Ventas</h1>
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="inventario.html">Inventario</a>
-            <a href="compras.html">Compras</a>
-            <a href="reportes.html">Reportes</a>
-        </nav>
+        <h1>Gestión de Ventas</h1>
+        <button onclick="window.location.href='index.html'">Menú Principal</button>
     </header>
-    <section>
-        <select id="saleProduct"></select>
-        <input type="number" id="saleQuantity" placeholder="Cantidad Vendida">
-        <button onclick="recordSale()">Registrar Venta</button>
-        <div id="salesHistory"></div>
-    </section>
+    <div class="menu">
+        <button onclick="aperturaCaja()">Apertura de Caja</button>
+        <button onclick="realizarVenta()">Realizar Venta</button>
+        <button onclick="cierreCaja()">Cierre de Caja</button>
+        <button onclick="reimprimirCierre()">Reimprimir Cierre</button>
+        <button onclick="cierrePorProducto()">Cierre por Producto</button>
+        <button onclick="arqueoCaja()">Arqueo de Caja</button>
+    </div>
+    <div id="ventasContent"></div>
 </body>
 </html>
