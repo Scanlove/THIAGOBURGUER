@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes - Thiago Burger</title>
     <link rel="stylesheet" href="style.css">
-    <script src="js/reportes.js" defer></script>
+    <script src="reportes.js" defer></script>
 </head>
 <body>
     <header>
-        <h1>Reportes</h1>
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="inventario.html">Inventario</a>
-            <a href="ventas.html">Ventas</a>
-            <a href="compras.html">Compras</a>
-        </nav>
+        <h1>Generar Reportes</h1>
+        <button onclick="window.location.href='index.html'">Menú Principal</button>
     </header>
-    <section>
-        <button onclick="generateReport()">Generar Reporte</button>
-        <div id="reportContent"></div>
-    </section>
+    <div class="menu">
+        <button onclick="reporteVentasDia()">Reporte de Ventas del Día</button>
+        <button onclick="reporteVentasMes()">Reporte de Ventas del Mes</button>
+        <button onclick="winchaPorProducto()">Wincha por Producto</button>
+        <button onclick="winchaArqueoCaja()">Wincha Arqueo de Caja</button>
+        <button onclick="winchaTicketsVendidos()">Wincha Tickets Vendidos</button>
+        <button onclick="winchaReporteDia()">Wincha Reporte del Día</button>
+    </div>
+    <div id="reportesContent"></div>
 </body>
 </html>
