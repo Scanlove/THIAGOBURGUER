@@ -5,23 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compras - Thiago Burger</title>
     <link rel="stylesheet" href="style.css">
-    <script src="js/compras.js" defer></script>
+    <script src="compras.js" defer></script>
 </head>
 <body>
     <header>
-        <h1>Registro de Compras</h1>
-        <nav>
-            <a href="index.html">Inicio</a>
-            <a href="inventario.html">Inventario</a>
-            <a href="ventas.html">Ventas</a>
-            <a href="reportes.html">Reportes</a>
-        </nav>
+        <h1>Gestión de Compras</h1>
+        <button onclick="window.location.href='index.html'">Menú Principal</button>
     </header>
-    <section>
-        <input type="text" id="purchaseProduct" placeholder="Producto">
-        <input type="number" id="purchaseQuantity" placeholder="Cantidad">
-        <input type="number" id="purchasePrice" placeholder="Precio">
-        <button onclick="recordPurchase()">Registrar Compra</button>
-    </section>
+    <div class="menu">
+        <button onclick="nuevoProducto()">Nuevo Producto</button>
+        <button onclick="registrarProducto()">Registrar Producto</button>
+        <button onclick="registrarGastos()">Registrar Gastos</button>
+        <button onclick="resetearInventario()">Resetear Inventario</button>
+    </div>
+    <div id="comprasContent"></div>
 </body>
 </html>
