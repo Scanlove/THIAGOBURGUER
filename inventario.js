@@ -1,60 +1,103 @@
 let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+let sales = JSON.parse(localStorage.getItem('sales')) || [];
 
-function saveInventory() {
-    localStorage.setItem('inventory', JSON.stringify(inventory));
+// Función para buscar un producto en el inventario
+function buscarProducto() {
+    document.getElementById('inventarioContent').innerHTML = `
+        <h3>Buscar Producto</h3>
+        <input type="text" id="searchName" placeholder="Nombre del producto">
+        <button onclick="searchProduct()">Buscar</button>
+        <div id="searchResult"></div>
+    `;
 }
 
-function addProduct() {
-    const name = document.getElementById('productName').value;
-    const quantity = parseInt(document.getElementById('productQuantity').value);
-    const price = parseFloat(document.getElementById('productPrice').value);
-    
-    if (name && quantity > 0 && price > 0) {
-        inventory.push({ name, quantity, price });
-        saveInventory();
-        renderInventory();
-        document.getElementById('productName').value = '';
-        document.getElementById('productQuantity').value = '';
-        document.getElementById('productPrice').value = '';
+// Función para realizar la búsqueda de un producto
+function searchProduct() {
+    const name = document.getElementById('searchName').value.trim().toLowerCase();
+    const result = inventory.filter(product => product.name.toLowerCase().includes(name));
+
+    const searchResult = document.getElementById('searchResult');
+    if (result.length > 0) {
+        searchResult.innerHTML = `
+            <h4>Resultados de la búsqueda:</h4>
+            <ul>
+                ${result.map(product => `
+                    <li>${product.name} - Cantidad: ${product.quantity}, Precio: $${product.price.toFixed(2)}</li>
+                `).join('')}
+            </ul>
+        `;
     } else {
-        alert('Por favor, completa todos los campos correctamente.');
+        searchResult.innerHTML = `<p>No se encontraron productos con ese nombre.</p>`;
     }
 }
 
-function renderInventory() {
-    const tableBody = document.querySelector('#inventoryTable tbody');
-    tableBody.innerHTML = '';
-    inventory.forEach((product, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${product.name}</td>
-            <td>${product.quantity}</td>
-            <td>${product.price.toFixed(2)}</td>
-            <td>
-                <button onclick="deleteProduct(${index})">Eliminar</button>
-                <button onclick="editProduct(${index})">Editar</button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
+// Función para imprimir el saldo actual de todos los productos
+function imprimirSaldo() {
+    const saldoContent = `
+        <h3>Saldo Actual del Inventario</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio por Unidad</th>
+                    <th>Valor Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${inventory.map(product => `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>${product.quantity}</td>
+                        <td>$${product.price.toFixed(2)}</td>
+                        <td>$${(product.quantity * product.price).toFixed(2)}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        <p>Total Valor del Inventario: $${calculateTotalInventoryValue().toFixed(2)}</p>
+    `;
+
+    document.getElementById('inventarioContent').innerHTML = saldoContent;
 }
 
-function deleteProduct(index) {
-    inventory.splice(index, 1);
-    saveInventory();
-    renderInventory();
+// Función para calcular el valor total del inventario
+function calculateTotalInventoryValue() {
+    return inventory.reduce((total, product) => total + (product.quantity * product.price), 0);
 }
 
-function editProduct(index) {
-    const product = inventory[index];
-    document.getElementById('productName').value = product.name;
-    document.getElementById('productQuantity').value = product.quantity;
-    document.getElementById('productPrice').value = product.price;
-    inventory.splice(index, 1);
-    saveInventory();
-    renderInventory();
+// Función para revisar las ventas del día
+function revisarVentaDia() {
+    const today = new Date().toLocaleDateString();
+    const todaySales = sales.filter(sale => sale.date === today);
+
+    const salesContent = `
+        <h3>Ventas del Día (${today})</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad Vendida</th>
+                    <th>Total Venta</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${todaySales.map(sale => `
+                    <tr>
+                        <td>${sale.name}</td>
+                        <td>${sale.quantity}</td>
+                        <td>$${sale.total.toFixed(2)}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        <p>Total de Ventas del Día: $${calculateTotalSales(todaySales).toFixed(2)}</p>
+    `;
+
+    document.getElementById('inventarioContent').innerHTML = salesContent;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderInventory();
-});
+// Función para calcular el total de ventas
+function calculateTotalSales(salesList) {
+    return salesList.reduce((total, sale) => total + sale.total, 0);
+}
