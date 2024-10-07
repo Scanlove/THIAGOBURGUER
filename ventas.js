@@ -1,45 +1,6 @@
-let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
 let sales = JSON.parse(localStorage.getItem('sales')) || [];
 let cajaAbierta = JSON.parse(localStorage.getItem('cajaAbierta')) || false;
 let caja = JSON.parse(localStorage.getItem('caja')) || { montoInicial: 0, totalVentas: 0, ventas: [] };
-
-// Función para guardar el estado de la caja y las ventas
-function saveCaja() {
-    localStorage.setItem('caja', JSON.stringify(caja));
-    localStorage.setItem('cajaAbierta', JSON.stringify(cajaAbierta));
-    localStorage.setItem('sales', JSON.stringify(sales));
-    localStorage.setItem('inventory', JSON.stringify(inventory));
-}
-
-// Función para la apertura de caja
-function aperturaCaja() {
-    if (cajaAbierta) {
-        alert('La caja ya está abierta.');
-        return;
-    }
-
-    document.getElementById('ventasContent').innerHTML = `
-        <h3>Apertura de Caja</h3>
-        <input type="number" id="montoInicial" placeholder="Monto inicial en caja">
-        <button onclick="abrirCaja()">Abrir Caja</button>
-    `;
-}
-
-function abrirCaja() {
-    const montoInicial = parseFloat(document.getElementById('montoInicial').value);
-    
-    if (montoInicial >= 0) {
-        caja.montoInicial = montoInicial;
-        caja.totalVentas = 0;
-        caja.ventas = [];
-        cajaAbierta = true;
-        saveCaja();
-        alert('Caja abierta con éxito con un monto inicial de $' + montoInicial.toFixed(2));
-        document.getElementById('ventasContent').innerHTML = '';
-    } else {
-        alert('Por favor, ingresa un monto inicial válido.');
-    }
-}
 
 // Función para realizar una venta
 function realizarVenta() {
@@ -48,10 +9,12 @@ function realizarVenta() {
         return;
     }
 
+    // Filtrar productos por categoría
     const comidas = inventory.filter(item => item.category === 'Comida');
     const extras = inventory.filter(item => item.category === 'Extras y Porciones');
     const gaseosas = inventory.filter(item => item.category === 'Gaseosas');
 
+    // Mostrar los productos en categorías
     document.getElementById('ventasContent').innerHTML = `
         <h3>Realizar Venta</h3>
         <div class="category">
@@ -92,6 +55,7 @@ function realizarVenta() {
     `;
 }
 
+// Variables para el carrito de compras
 let carrito = [];
 let totalVenta = 0;
 
@@ -177,9 +141,4 @@ function procesarVenta() {
         saveCaja();
         alert('Venta procesada con éxito.');
         document.getElementById('ventasContent').innerHTML = '';
-        carrito = [];
-        totalVenta = 0;
-    } else {
-        alert('Por favor, verifica el monto pagado y el cambio.');
-    }
-}
+        carrito
