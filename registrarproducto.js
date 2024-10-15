@@ -1,9 +1,10 @@
 // Cargar productos del localStorage o una lista de ejemplo
 let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
 
-// Función para autocompletar los campos cuando se ingresa un código
-document.getElementById('codigo').addEventListener('input', (event) => {
-    const producto = inventory.find(item => item.codigo === event.target.value);
+// Función para buscar y autocompletar el producto
+function autocompletarProducto() {
+    const codigo = document.getElementById('codigo').value.trim();
+    const producto = inventory.find(item => item.codigo === codigo);
 
     if (producto) {
         document.getElementById('descripcion').value = producto.descripcion;
@@ -13,6 +14,15 @@ document.getElementById('codigo').addEventListener('input', (event) => {
         document.getElementById('descripcion').value = '';
         document.getElementById('unidad').value = '';
         document.getElementById('saldo').value = '';
+        alert('Producto no encontrado.');
+    }
+}
+
+// Escuchar el evento "Enter" en el campo de código
+document.getElementById('codigo').addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Evitar que se recargue la página
+        autocompletarProducto(); // Llamar a la función de autocompletar
     }
 });
 
@@ -20,7 +30,7 @@ document.getElementById('codigo').addEventListener('input', (event) => {
 function registrarProducto(event) {
     event.preventDefault(); // Evita el recargo de la página
 
-    const codigo = document.getElementById('codigo').value;
+    const codigo = document.getElementById('codigo').value.trim();
     const fecha = document.getElementById('fecha').value;
     const cantidadIngreso = parseInt(document.getElementById('cantidadIngreso').value);
 
@@ -43,7 +53,7 @@ function guardarInventario() {
 
 // Función para revisar los detalles de un producto
 function revisarDetalles() {
-    const codigo = document.getElementById('codigo').value;
+    const codigo = document.getElementById('codigo').value.trim();
     const producto = inventory.find(item => item.codigo === codigo);
 
     if (producto) {
