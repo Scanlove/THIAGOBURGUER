@@ -46,25 +46,28 @@ let productos = [
     { codigo: 'G019', descripcion: 'Antartica 2Lt.', medida: 'Unidad', entrada: 0, salida: 0, saldo: 0, unidadKilo: 1, precio: 18, precioVenta: 22, precioCompra: 15, liquidoGanable: 7, ventaBruta: 0 },
     
 ];
-
+// Registros de entradas y salidas
 let entradas = [
-    { codigo: 'C001', fecha: '2024-10-15', detalle: 'Compra inicial', cantidad: 100, totalBs: 1800 }
-    // Agrega más registros si es necesario...
+    { codigo: 'C001', fecha: '2024-10-15', detalle: 'Compra inicial', cantidad: 100, totalBs: 1800 },
+    { codigo: 'C002', fecha: '2024-10-16', detalle: 'Compra adicional', cantidad: 50, totalBs: 1100 }
 ];
 
 let salidas = [
-    { codigo: 'C001', salidaDia: 10, salidaTotal: 20, mercaderia: 'Comida', salidas: 30 }
-    // Agrega más registros si es necesario...
+    { codigo: 'C001', salidaDia: 10, salidaTotal: 20, mercaderia: 'Comida', salidas: 30 },
+    { codigo: 'C002', salidaDia: 5, salidaTotal: 10, mercaderia: 'Comida', salidas: 15 }
 ];
-// Verificar si el inventario ya existe en localStorage, de lo contrario usar los productos iniciales
+
+// Cargar productos desde localStorage o usar los iniciales
 let inventory = JSON.parse(localStorage.getItem('inventory')) || productos;
 
-// Guardar inventario en localStorage
+// Guardar inventario y registros en localStorage
 function guardarInventario() {
     localStorage.setItem('inventory', JSON.stringify(inventory));
+    localStorage.setItem('entradas', JSON.stringify(entradas));
+    localStorage.setItem('salidas', JSON.stringify(salidas));
 }
 
-// Mostrar las tablas en la página
+// Mostrar tablas de productos, entradas y salidas
 function mostrarTablas() {
     document.getElementById('contenidoTablas').innerHTML = `
         <div class="table-container">
@@ -87,7 +90,7 @@ function mostrarTablas() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${productos.map(producto => `
+                    ${inventory.map(producto => `
                         <tr>
                             <td>${producto.codigo}</td>
                             <td>${producto.descripcion}</td>
@@ -159,8 +162,10 @@ function mostrarTablas() {
             </table>
         </div>
     `;
-    guardarInventario(); // Guardar en localStorage después de mostrar las tablas
 }
 
 // Llamar a la función para mostrar las tablas al cargar la página
-document.addEventListener('DOMContentLoaded', mostrarTablas);
+document.addEventListener('DOMContentLoaded', () => {
+    mostrarTablas();
+    guardarInventario(); // Guardar datos en localStorage
+});
