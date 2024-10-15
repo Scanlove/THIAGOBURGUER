@@ -1,7 +1,15 @@
-// Cargar productos del localStorage o una lista de ejemplo
+// Cargar el inventario desde localStorage
 let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
 
-// Función para buscar y autocompletar el producto
+// Escuchar el evento "Enter" en el campo de código para autocompletar
+document.getElementById('codigo').addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Evitar recarga de página
+        autocompletarProducto(); // Llamar a la función de autocompletar
+    }
+});
+
+// Función para autocompletar los campos según el código ingresado
 function autocompletarProducto() {
     const codigo = document.getElementById('codigo').value.trim();
     const producto = inventory.find(item => item.codigo === codigo);
@@ -11,20 +19,17 @@ function autocompletarProducto() {
         document.getElementById('unidad').value = producto.medida;
         document.getElementById('saldo').value = producto.saldo;
     } else {
-        document.getElementById('descripcion').value = '';
-        document.getElementById('unidad').value = '';
-        document.getElementById('saldo').value = '';
         alert('Producto no encontrado.');
+        limpiarCampos();
     }
 }
 
-// Escuchar el evento "Enter" en el campo de código
-document.getElementById('codigo').addEventListener('keypress', function (event) {
-    if (event.key === 'Enter') {
-        event.preventDefault(); // Evitar que se recargue la página
-        autocompletarProducto(); // Llamar a la función de autocompletar
-    }
-});
+// Función para limpiar los campos
+function limpiarCampos() {
+    document.getElementById('descripcion').value = '';
+    document.getElementById('unidad').value = '';
+    document.getElementById('saldo').value = '';
+}
 
 // Función para registrar un nuevo ingreso
 function registrarProducto(event) {
@@ -37,21 +42,21 @@ function registrarProducto(event) {
     const producto = inventory.find(item => item.codigo === codigo);
 
     if (producto) {
-        producto.saldo += cantidadIngreso; // Actualizar el saldo
+        producto.saldo += cantidadIngreso; // Actualizar saldo
         guardarInventario(); // Guardar en localStorage
         alert('Producto registrado correctamente.');
-        document.querySelector('form').reset(); // Limpiar el formulario
+        document.querySelector('form').reset(); // Limpiar formulario
     } else {
         alert('Código de producto no válido.');
     }
 }
 
-// Función para guardar el inventario en localStorage
+// Función para guardar el inventario actualizado en localStorage
 function guardarInventario() {
     localStorage.setItem('inventory', JSON.stringify(inventory));
 }
 
-// Función para revisar los detalles de un producto
+// Función para revisar detalles del producto
 function revisarDetalles() {
     const codigo = document.getElementById('codigo').value.trim();
     const producto = inventory.find(item => item.codigo === codigo);
