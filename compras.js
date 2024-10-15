@@ -1,67 +1,110 @@
-// Inicialización de inventario desde localStorage
-let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+// Datos de ejemplo iniciales (pueden venir de localStorage en un futuro)
+let productos = [
+    { codigo: '001', descripcion: 'Hamburguesa', medida: 'Unidad', entrada: 100, salida: 10, saldo: 90, unidadKilo: 1, precio: 10, precioVenta: 15, precioCompra: 8, liquidoGanable: 7, ventaBruta: 150 },
+];
 
-// Función para guardar el inventario en localStorage
-function saveInventory() {
-    localStorage.setItem('inventory', JSON.stringify(inventory));
-}
+let registroEntradas = [
+    { codigo: '001', fecha: '2024-10-15', detalle: 'Entrada inicial', cantidad: 100, total: 800 },
+];
 
-// Función para agregar un nuevo producto al inventario
+let registroSalidas = [
+    { codigo: '001', salidaDia: 10, salidaTotal: 20, mercaderia: 'Comida', salidas: 30 },
+];
+
+// Función para mostrar las tablas de "Nuevo Producto"
 function nuevoProducto() {
     document.getElementById('comprasContent').innerHTML = `
-        <h3>Agregar Nuevo Producto</h3>
-        <input type="text" id="productName" placeholder="Nombre del producto">
-        <input type="number" id="productQuantity" placeholder="Cantidad">
-        <input type="number" id="productPrice" placeholder="Precio por unidad">
-        <select id="productCategory">
-            <option value="Comida">Comida</option>
-            <option value="Extras y Porciones">Extras y Porciones</option>
-            <option value="Gaseosas">Gaseosas</option>
-        </select>
-        <button onclick="addProduct()">Agregar Producto</button>
+        <h3>Nuevo Producto</h3>
+        <div class="table-container">
+            <h4>Tabla de Productos</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Medida</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Saldo</th>
+                        <th>Unidad Kilo</th>
+                        <th>Precio</th>
+                        <th>Precio Venta</th>
+                        <th>Precio Compra</th>
+                        <th>Líquido Ganable</th>
+                        <th>Venta Bruta</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${productos.map(producto => `
+                        <tr>
+                            <td>${producto.codigo}</td>
+                            <td>${producto.descripcion}</td>
+                            <td>${producto.medida}</td>
+                            <td>${producto.entrada}</td>
+                            <td>${producto.salida}</td>
+                            <td>${producto.saldo}</td>
+                            <td>${producto.unidadKilo}</td>
+                            <td>${producto.precio}</td>
+                            <td>${producto.precioVenta}</td>
+                            <td>${producto.precioCompra}</td>
+                            <td>${producto.liquidoGanable}</td>
+                            <td>${producto.ventaBruta}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-container">
+            <h4>Registro de Entradas</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Fecha</th>
+                        <th>Detalle</th>
+                        <th>Cantidad</th>
+                        <th>Total Bs.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${registroEntradas.map(entrada => `
+                        <tr>
+                            <td>${entrada.codigo}</td>
+                            <td>${entrada.fecha}</td>
+                            <td>${entrada.detalle}</td>
+                            <td>${entrada.cantidad}</td>
+                            <td>${entrada.total}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-container">
+            <h4>Registro de Salidas</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Salida del Día</th>
+                        <th>Salida Total</th>
+                        <th>Mercadería</th>
+                        <th>Salidas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${registroSalidas.map(salida => `
+                        <tr>
+                            <td>${salida.codigo}</td>
+                            <td>${salida.salidaDia}</td>
+                            <td>${salida.salidaTotal}</td>
+                            <td>${salida.mercaderia}</td>
+                            <td>${salida.salidas}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
     `;
-}
-
-// Función para agregar un producto nuevo con su categoría
-function addProduct() {
-    const name = document.getElementById('productName').value.trim();
-    const quantity = parseInt(document.getElementById('productQuantity').value);
-    const price = parseFloat(document.getElementById('productPrice').value);
-    const category = document.getElementById('productCategory').value;
-
-    if (name && quantity > 0 && price > 0 && category) {
-        inventory.push({ name, quantity, price, category });
-        saveInventory();
-        alert('Producto agregado exitosamente.');
-        document.getElementById('comprasContent').innerHTML = '';
-    } else {
-        alert('Por favor, completa todos los campos correctamente.');
-    }
-}
-
-// Función para registrar un producto existente (agregar stock)
-function registrarProducto() {
-    document.getElementById('comprasContent').innerHTML = `
-        <h3>Registrar Producto Existente</h3>
-        <select id="productSelect">
-            ${inventory.map((product, index) => `<option value="${index}">${product.name} (${product.category})</option>`).join('')}
-        </select>
-        <input type="number" id="productQuantity" placeholder="Cantidad a agregar">
-        <button onclick="addStock()">Agregar Stock</button>
-    `;
-}
-
-// Función para agregar stock a un producto existente
-function addStock() {
-    const index = document.getElementById('productSelect').value;
-    const quantity = parseInt(document.getElementById('productQuantity').value);
-
-    if (quantity > 0 && inventory[index]) {
-        inventory[index].quantity += quantity;
-        saveInventory();
-        alert('Stock agregado correctamente.');
-        document.getElementById('comprasContent').innerHTML = '';
-    } else {
-        alert('Por favor, selecciona un producto válido y una cantidad mayor a cero.');
-    }
 }
