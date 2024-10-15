@@ -56,6 +56,13 @@ let salidas = [
     { codigo: 'C001', salidaDia: 10, salidaTotal: 20, mercaderia: 'Comida', salidas: 30 }
     // Agrega más registros si es necesario...
 ];
+// Verificar si el inventario ya existe en localStorage, de lo contrario usar los productos iniciales
+let inventory = JSON.parse(localStorage.getItem('inventory')) || productos;
+
+// Guardar inventario en localStorage
+function guardarInventario() {
+    localStorage.setItem('inventory', JSON.stringify(inventory));
+}
 
 // Mostrar las tablas en la página
 function mostrarTablas() {
@@ -152,6 +159,7 @@ function mostrarTablas() {
             </table>
         </div>
     `;
+    guardarInventario(); // Guardar en localStorage después de mostrar las tablas
 }
 
 // Llamar a la función para mostrar las tablas al cargar la página
